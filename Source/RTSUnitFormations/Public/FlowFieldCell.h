@@ -32,6 +32,9 @@ public:
 	// Cell State
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsWalkable = false;
+
+	char Cost = 1; // every cell has a cost of 1, rougher can be more, impassable is 255, target is 0
+	int IntegrationCost = 7777777; // the best cost of a cell
 	
 	// Components
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

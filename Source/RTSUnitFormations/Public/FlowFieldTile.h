@@ -23,9 +23,14 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SpawnCells();
 
-public:	
+public:
+	UFUNCTION(BlueprintCallable)
+	void CalculateFlowField(FVector TargetWorldLocation);
+	
+
+	
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AFlowFieldCell> CellClass = AFlowFieldCell::StaticClass();
@@ -41,4 +46,32 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<AFlowFieldCell*> Cells{};
+
+private:
+	UFUNCTION(BlueprintCallable)
+	void GenerateIntegrationField(FVector TargetWorldLocation);
+	UFUNCTION(BlueprintCallable)
+	void GenerateFlowField();
+	
+	// Helpers
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AFlowFieldCell* GetCellFromWorldPos(FVector Position) const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetCellIndex(AFlowFieldCell* Cell) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TArray<AFlowFieldCell*> GetCellNeighbors(int Index, bool bReturnOnlyWalkable = true) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FIntVector2 IndexToCoordinate(int Index) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int CoordinateToIndex(FIntVector2 Coordinate) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsCoordinateValid(FIntVector2 Coordinate) const;
+
+	UPROPERTY()
+	const FVector CellSize{100,100,0}; // Shitty magic value
 };
