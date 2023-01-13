@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FlowFieldDirection.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Actor.h"
@@ -43,7 +44,9 @@ public:
 	UStaticMeshComponent* DebugPlane;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* SceneRoot;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector DesiredMovementDirection{0,0,0};
+	
 	// Debug Visualisation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInstance* WalkableMaterial;

@@ -64,14 +64,14 @@ private:
 	TArray<AFlowFieldCell*> GetCellNeighbors(int Index, bool bReturnOnlyWalkable = true) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FIntVector2 IndexToCoordinate(int Index) const;
+	FIntPoint IndexToCoordinate(int Index) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	int CoordinateToIndex(FIntVector2 Coordinate) const;
+	int CoordinateToIndex(FIntPoint Coordinate) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool IsCoordinateValid(FIntVector2 Coordinate) const;
+	bool IsCoordinateValid(FIntPoint Coordinate) const;
 
 	UPROPERTY()
-	const FVector CellSize{100,100,0}; // Shitty magic value
+	FVector CellSize{100,100,0}; // Shitty magic value
 };

@@ -110,9 +110,19 @@ void AFlowFieldTile::GenerateFlowField()
 
 		if (BestNeighbor != nullptr) // Will be nullptr if it's the destination
 		{
-			// figure out direction to BestNeighbor
-			// get 2D coords
-			// make enum which has 2D coords as entries?
+			const FIntPoint OriginCoordinate = IndexToCoordinate(GetCellIndex(Cell));
+		    const FIntPoint TargetCoordinate = IndexToCoordinate(GetCellIndex(BestNeighbor));
+
+			const FIntPoint TravelDirection{TargetCoordinate.X - OriginCoordinate.X, TargetCoordinate.Y - OriginCoordinate.Y};
+
+			Cell->DesiredMovementDirection.X = TravelDirection.X;
+			Cell->DesiredMovementDirection.Y = TravelDirection.Y;
+		}
+		else
+		{
+			// set desired travel direction to none
+			Cell->DesiredMovementDirection.X = 0;
+			Cell->DesiredMovementDirection.Y = 0;
 		}
 	}
 }
@@ -130,7 +140,7 @@ AFlowFieldCell* AFlowFieldTile::GetCellFromWorldPos(const FVector Position) cons
 	// Position is in grid
 	const FVector OriginToPos = Position - FlowFieldOrigin;
 
-	const FIntVector2 CellCoord
+	const FIntPoint CellCoord
 	{
 		UE4::SSE::FloorToInt32(OriginToPos.X / CellSize.X),
 		UE4::SSE::FloorToInt32(OriginToPos.Y / CellSize.Y)
@@ -154,7 +164,7 @@ TArray<AFlowFieldCell*> AFlowFieldTile::GetCellNeighbors(const int Index, const 
 	if (!Cells.IsValidIndex(Index))
 		return Neighbors;
 
-	FIntVector2 CellCoordinate = IndexToCoordinate(Index);
+	FIntPoint CellCoordinate = IndexToCoordinate(Index);
 	// Right
 	CellCoordinate.X++;
 	if (IsCoordinateValid(CellCoordinate))
@@ -209,17 +219,17 @@ TArray<AFlowFieldCell*> AFlowFieldTile::GetCellNeighbors(const int Index, const 
 	return Neighbors;
 }
 
-FIntVector2 AFlowFieldTile::IndexToCoordinate(const int Index) const
+FIntPoint AFlowFieldTile::IndexToCoordinate(const int Index) const
 {
-	return FIntVector2{Index % GridCols, Index / GridCols};
+	return FIntPoint{Index % GridCols, Index / GridCols};
 }
 
-int AFlowFieldTile::CoordinateToIndex(const FIntVector2 Coordinate) const
+int AFlowFieldTile::CoordinateToIndex(const FIntPoint Coordinate) const
 {
 	return Coordinate.Y * GridCols + Coordinate.X;
 }
 
-bool AFlowFieldTile::IsCoordinateValid(const FIntVector2 Coordinate) const
+bool AFlowFieldTile::IsCoordinateValid(const FIntPoint Coordinate) const
 {
 	if (Coordinate.X < 0 || Coordinate.Y < 0)
 		return false;
