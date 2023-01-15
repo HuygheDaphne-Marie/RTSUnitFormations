@@ -25,6 +25,12 @@ AFlowFieldCell::AFlowFieldCell()
 	CellCollision->SetBoxExtent(FVector{50,50,10}, false);
 	CellCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CellCollision->SetupAttachment(SceneRoot);
+
+	DesiredDirectionArrow = CreateDefaultSubobject<UArrowComponent>("Direction Arrow");
+	DesiredDirectionArrow->SetHiddenInGame(true);
+	DesiredDirectionArrow->ArrowSize = 0.5f;
+	DesiredDirectionArrow->SetRelativeLocation(FVector{0, 0, 20});
+	DesiredDirectionArrow->SetupAttachment(SceneRoot);
 }
 
 // Called when the game starts or when spawned
@@ -37,11 +43,29 @@ void AFlowFieldCell::BeginPlay()
 		ECC_Visibility, CheckBox);
 }
 
-void AFlowFieldCell::ToggleShowDebugWalkableStatus() const
+void AFlowFieldCell::ToggleShowDebugWalkableStatus()
 {
 	UMaterialInstance* SelectedMaterial =  bIsWalkable ? WalkableMaterial : NotWalkableMaterial;
 	DebugPlane->SetMaterial(0, SelectedMaterial);
 	DebugPlane->SetHiddenInGame(!DebugPlane->bHiddenInGame);
+}
+
+void AFlowFieldCell::ToggleShowDesiredDirection()
+{
+	if (bIsShowingDirectionArrowState) // if we're showing and we need to hide
+	{
+		bIsShowingDirectionArrowState = false;
+		DesiredDirectionArrow->SetHiddenInGame(bIsShowingDirectionArrowState);
+	}
+	else // not showing and need to setup display
+	{
+		if (DesiredMovementDirection.SquaredLength() >= 0.1f)
+		{
+			DesiredDirectionArrow->SetHiddenInGame(false);
+			const FRotator ArrowRotation = DesiredMovementDirection.ToOrientationRotator();
+			DesiredDirectionArrow->SetWorldRotation(ArrowRotation);
+		}
+	}
 }
 
 FVector AFlowFieldCell::GetCellExtent() const

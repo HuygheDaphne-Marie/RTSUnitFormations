@@ -7,6 +7,6 @@ void AAstarUnitController::GoToTarget()
 {
 	Super::GoToTarget();
 
-	UE_LOG(LogTemp, Warning, TEXT("Going to target!"))
+	// UE_LOG(LogTemp, Warning, TEXT("Going to target!"))
 	MoveToLocation(TargetPos);
 }

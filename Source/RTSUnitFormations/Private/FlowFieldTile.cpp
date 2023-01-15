@@ -57,8 +57,10 @@ void AFlowFieldTile::SpawnCells()
 	}
 }
 
-void AFlowFieldTile::CalculateFlowField(FVector TargetWorldLocation)
+void AFlowFieldTile::CalculateFlowField_Implementation(FVector TargetWorldLocation)
 {
+	GenerateIntegrationField(TargetWorldLocation);
+	GenerateFlowField();
 }
 
 void AFlowFieldTile::GenerateIntegrationField(FVector TargetWorldLocation)
@@ -164,20 +166,26 @@ TArray<AFlowFieldCell*> AFlowFieldTile::GetCellNeighbors(const int Index, const 
 	if (!Cells.IsValidIndex(Index))
 		return Neighbors;
 
+	// might be better to calculate the neighboring indices, not using coords
+	// left is -1 right is +1
+	// row above is + gridwith
+	// row below is - gridwith
+	// same for left right of those
+
 	FIntPoint CellCoordinate = IndexToCoordinate(Index);
 	// Right
 	CellCoordinate.X++;
-	if (IsCoordinateValid(CellCoordinate))
+	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
 		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
 			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
 	// Top Right
 	CellCoordinate.Y++;
-	if (IsCoordinateValid(CellCoordinate))
+	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
 		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
 			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
 	// Bottom Right
 	CellCoordinate.Y -= 2;
-	if (IsCoordinateValid(CellCoordinate))
+	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
 		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
 			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
 
@@ -186,17 +194,17 @@ TArray<AFlowFieldCell*> AFlowFieldTile::GetCellNeighbors(const int Index, const 
 
 	// Left
 	CellCoordinate.X -= 2;
-	if (IsCoordinateValid(CellCoordinate))
+	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
 		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
 			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
 	// Top Left
 	CellCoordinate.Y++;
-	if (IsCoordinateValid(CellCoordinate))
+	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
 		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
 			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
 	// Bottom Left
 	CellCoordinate.Y -= 2;
-	if (IsCoordinateValid(CellCoordinate))
+	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
 		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
 			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
 

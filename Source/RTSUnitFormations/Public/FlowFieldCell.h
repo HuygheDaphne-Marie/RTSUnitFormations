@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Actor.h"
@@ -24,7 +25,10 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable)
-	void ToggleShowDebugWalkableStatus() const;
+	void ToggleShowDebugWalkableStatus();
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleShowDesiredDirection();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FVector GetCellExtent() const;
@@ -35,6 +39,8 @@ public:
 
 	char Cost = 1; // every cell has a cost of 1, rougher can be more, impassable is 255, target is 0
 	int IntegrationCost = 7777777; // the best cost of a cell
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector DesiredMovementDirection{0,0,0};
 	
 	// Components
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -44,11 +50,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USceneComponent* SceneRoot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector DesiredMovementDirection{0,0,0};
+	UArrowComponent* DesiredDirectionArrow;
 	
 	// Debug Visualisation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInstance* WalkableMaterial;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInstance* NotWalkableMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsShowingDirectionArrowState = false;
 };

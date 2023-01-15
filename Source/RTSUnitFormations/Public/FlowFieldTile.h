@@ -24,10 +24,11 @@ protected:
 	void SpawnCells();
 
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void CalculateFlowField(FVector TargetWorldLocation);
 	
-
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AFlowFieldCell* GetCellFromWorldPos(FVector Position) const;
 	
 	// Called every frame
 	// virtual void Tick(float DeltaTime) override;
@@ -54,9 +55,6 @@ private:
 	void GenerateFlowField();
 	
 	// Helpers
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	AFlowFieldCell* GetCellFromWorldPos(FVector Position) const;
-	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	int GetCellIndex(AFlowFieldCell* Cell) const;
 
