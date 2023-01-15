@@ -25,5 +25,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	AFlowFieldTile* FlowFieldTile{};
-	
+
+	UPROPERTY(EditAnywhere)
+	FVector MovementDirection{};
 };

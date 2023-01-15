@@ -53,6 +53,8 @@ private:
 	void GenerateIntegrationField(FVector TargetWorldLocation);
 	UFUNCTION(BlueprintCallable)
 	void GenerateFlowField();
+	UFUNCTION(BlueprintCallable)
+	void ResetField();
 	
 	// Helpers
 	UFUNCTION(BlueprintCallable, BlueprintPure)
@@ -72,4 +74,7 @@ private:
 
 	UPROPERTY()
 	FVector CellSize{100,100,0}; // Shitty magic value
+
+	UPROPERTY()
+	bool bIsDirty = false;
 };

@@ -22,7 +22,12 @@ void AFlowFieldUnitController::Tick(float DeltaSeconds)
 		return;
 
 	AFlowFieldCell* OccupiedCell = FlowFieldTile->GetCellFromWorldPos(GetPawn()->GetActorLocation());
-	GetPawn()->AddMovementInput(OccupiedCell->DesiredMovementDirection);
+	if (OccupiedCell->bIsWalkable)
+		MovementDirection = OccupiedCell->GetDesiredMovementDirection();
+
+	if (MovementDirection.SquaredLength() >= 0.1f)
+		GetPawn()->AddMovementInput(MovementDirection);
+	
 }
 
 void AFlowFieldUnitController::GoToTarget()

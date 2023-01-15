@@ -59,8 +59,12 @@ void AFlowFieldTile::SpawnCells()
 
 void AFlowFieldTile::CalculateFlowField_Implementation(FVector TargetWorldLocation)
 {
+	if (bIsDirty)
+		ResetField();
+	
 	GenerateIntegrationField(TargetWorldLocation);
 	GenerateFlowField();
+	bIsDirty = true;
 }
 
 void AFlowFieldTile::GenerateIntegrationField(FVector TargetWorldLocation)
@@ -97,6 +101,9 @@ void AFlowFieldTile::GenerateFlowField()
 {
 	for (AFlowFieldCell* Cell : Cells)
 	{
+		if (!Cell->bIsWalkable)
+			continue;
+		
 		int LowestCost = Cell->IntegrationCost;
 		AFlowFieldCell* BestNeighbor = nullptr;
 		
@@ -117,16 +124,23 @@ void AFlowFieldTile::GenerateFlowField()
 
 			const FIntPoint TravelDirection{TargetCoordinate.X - OriginCoordinate.X, TargetCoordinate.Y - OriginCoordinate.Y};
 
-			Cell->DesiredMovementDirection.X = TravelDirection.X;
-			Cell->DesiredMovementDirection.Y = TravelDirection.Y;
+			Cell->SetDesiredMovementDirection(FVector{static_cast<double>(TravelDirection.X), static_cast<double>(TravelDirection.Y), 0});
 		}
 		else
 		{
 			// set desired travel direction to none
-			Cell->DesiredMovementDirection.X = 0;
-			Cell->DesiredMovementDirection.Y = 0;
+			Cell->SetDesiredMovementDirection(FVector{0, 0, 0});
 		}
 	}
+}
+
+void AFlowFieldTile::ResetField()
+{
+	for (AFlowFieldCell* Cell : Cells)
+		Cell->ResetCell();
+
+	bIsDirty = false;
+	// UE_LOG(LogTemp, Warning, TEXT("Cells reset!"))
 }
 
 // Helpers
@@ -172,57 +186,48 @@ TArray<AFlowFieldCell*> AFlowFieldTile::GetCellNeighbors(const int Index, const 
 	// row below is - gridwith
 	// same for left right of those
 
-	FIntPoint CellCoordinate = IndexToCoordinate(Index);
 	// Right
-	CellCoordinate.X++;
-	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
-		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
-			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
-	// Top Right
-	CellCoordinate.Y++;
-	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
-		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
-			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
-	// Bottom Right
-	CellCoordinate.Y -= 2;
-	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
-		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
-			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
-
-	// Reset Y to middle
-	CellCoordinate.Y++;
-
+	if (Cells.IsValidIndex(Index + 1))
+		if (bReturnOnlyWalkable && Cells[Index + 1]->bIsWalkable || !bReturnOnlyWalkable)
+			Neighbors.Add(Cells[Index + 1]);
 	// Left
-	CellCoordinate.X -= 2;
-	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
-		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
-			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
-	// Top Left
-	CellCoordinate.Y++;
-	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
-		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
-			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
-	// Bottom Left
-	CellCoordinate.Y -= 2;
-	if (IsCoordinateValid(CellCoordinate) && Cells.IsValidIndex(CoordinateToIndex(CellCoordinate)))
-		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
-			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
+	if (Cells.IsValidIndex(Index - 1))
+		if (bReturnOnlyWalkable && Cells[Index - 1]->bIsWalkable || !bReturnOnlyWalkable)
+			Neighbors.Add(Cells[Index - 1]);
 
+	// Above
+	const int AboveIndex = Index + GridCols;
+	if (Cells.IsValidIndex(AboveIndex)) // if the above doesn't exist neither will it's left or right
+	{
+		if (bReturnOnlyWalkable && Cells[AboveIndex]->bIsWalkable || !bReturnOnlyWalkable)
+			Neighbors.Add(Cells[AboveIndex]);
 
-	// reset X & Y to middle
-	CellCoordinate.X++;
-	CellCoordinate.Y++;
+		// Right
+		if (Cells.IsValidIndex(AboveIndex + 1))
+			if (bReturnOnlyWalkable && Cells[AboveIndex + 1]->bIsWalkable || !bReturnOnlyWalkable)
+				Neighbors.Add(Cells[AboveIndex + 1]);
+		// Left
+		if (Cells.IsValidIndex(AboveIndex - 1))
+			if (bReturnOnlyWalkable && Cells[AboveIndex - 1]->bIsWalkable || !bReturnOnlyWalkable)
+				Neighbors.Add(Cells[AboveIndex - 1]);
+	}
 
-	// Top
-	CellCoordinate.Y++;
-	if (IsCoordinateValid(CellCoordinate))
-		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
-			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
-	// Bottom
-	CellCoordinate.Y -= 2;
-	if (IsCoordinateValid(CellCoordinate))
-		if (bReturnOnlyWalkable && Cells[CoordinateToIndex(CellCoordinate)]->bIsWalkable || !bReturnOnlyWalkable)
-			Neighbors.Add(Cells[CoordinateToIndex(CellCoordinate)]);
+	// Below
+	const int BelowIndex = Index - GridCols;
+	if (Cells.IsValidIndex(BelowIndex)) // if the below doesn't exist neither will it's left or right
+	{
+		if (bReturnOnlyWalkable && Cells[BelowIndex]->bIsWalkable || !bReturnOnlyWalkable)
+			Neighbors.Add(Cells[BelowIndex]);
+
+		// Right
+		if (Cells.IsValidIndex(BelowIndex + 1))
+			if (bReturnOnlyWalkable && Cells[BelowIndex + 1]->bIsWalkable || !bReturnOnlyWalkable)
+				Neighbors.Add(Cells[BelowIndex + 1]);
+		// Left
+		if (Cells.IsValidIndex(BelowIndex - 1))
+			if (bReturnOnlyWalkable && Cells[BelowIndex - 1]->bIsWalkable || !bReturnOnlyWalkable)
+				Neighbors.Add(Cells[BelowIndex - 1]);
+	}
 
 	return Neighbors;
 }

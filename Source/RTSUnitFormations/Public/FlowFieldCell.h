@@ -33,14 +33,25 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FVector GetCellExtent() const;
 
+	UFUNCTION(BlueprintCallable)
+	void ResetCell();
+
 	// Cell State
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsWalkable = false;
 
 	char Cost = 1; // every cell has a cost of 1, rougher can be more, impassable is 255, target is 0
 	int IntegrationCost = 7777777; // the best cost of a cell
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+
+private:
+	UPROPERTY(EditAnywhere)
 	FVector DesiredMovementDirection{0,0,0};
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void SetDesiredMovementDirection(FVector Direction);
+	UFUNCTION(BlueprintCallable)
+	FVector GetDesiredMovementDirection() const;
 	
 	// Components
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -55,10 +55,12 @@ void AFlowFieldCell::ToggleShowDesiredDirection()
 	if (bIsShowingDirectionArrowState) // if we're showing and we need to hide
 	{
 		bIsShowingDirectionArrowState = false;
-		DesiredDirectionArrow->SetHiddenInGame(bIsShowingDirectionArrowState);
+		DesiredDirectionArrow->SetHiddenInGame(true);
 	}
 	else // not showing and need to setup display
 	{
+		bIsShowingDirectionArrowState = true;
+		
 		if (DesiredMovementDirection.SquaredLength() >= 0.1f)
 		{
 			DesiredDirectionArrow->SetHiddenInGame(false);
@@ -75,5 +77,26 @@ FVector AFlowFieldCell::GetCellExtent() const
 		return FVector{};
 	}
 	return CellCollision->GetScaledBoxExtent();
+}
+
+void AFlowFieldCell::ResetCell()
+{
+	IntegrationCost = 7777777;
+	DesiredMovementDirection = {0,0,0};
+}
+
+void AFlowFieldCell::SetDesiredMovementDirection(FVector Direction)
+{
+	DesiredMovementDirection = Direction;
+	if (bIsShowingDirectionArrowState)
+	{
+		ToggleShowDesiredDirection();
+		ToggleShowDesiredDirection();
+	}
+}
+
+FVector AFlowFieldCell::GetDesiredMovementDirection() const
+{
+	return DesiredMovementDirection;
 }
 
