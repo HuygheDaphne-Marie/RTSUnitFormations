@@ -1,6 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include <chrono>
+#include <fstream>
+#include <string>
 #include "FlowFieldTile.h"
 
 // Sets default values
@@ -59,12 +62,23 @@ void AFlowFieldTile::SpawnCells()
 
 void AFlowFieldTile::CalculateFlowField_Implementation(FVector TargetWorldLocation)
 {
+	std::chrono::milliseconds msStart = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch());
+ 
 	if (bIsDirty)
 		ResetField();
-	
+ 
 	GenerateIntegrationField(TargetWorldLocation);
 	GenerateFlowField();
 	bIsDirty = true;
+ 
+	std::chrono::milliseconds msEnd = std::chrono::duration_cast<std::chrono::milliseconds>(
+	std::chrono::system_clock::now().time_since_epoch());
+	std::chrono::milliseconds msDuration = std::chrono::duration_cast<std::chrono::milliseconds>(msEnd - msStart);
+ 
+	std::ofstream FlowFieldOutputFile;
+	FlowFieldOutputFile.open("C:/Unreal/Projects/RTSUnitFormations/flowfield.csv", std::ios::out | std::ios::app);
+	FlowFieldOutputFile << std::to_string(GridCols) << 'x' << std::to_string(GridRows) << "," << std::to_string(msDuration.count()) << std::endl;
 }
 
 void AFlowFieldTile::GenerateIntegrationField(FVector TargetWorldLocation)

@@ -2,7 +2,6 @@
 
 
 #include "UnitController.h"
-
 #include "Kismet/GameplayStatics.h"
 
 AUnitController::AUnitController()
@@ -20,8 +19,32 @@ void AUnitController::BeginPlay()
 	TArray<AActor*> Targets{};
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "Target", Targets);
 	if (!Targets.IsEmpty())
+	{
+		// Target = Targets[0];
 		SetTarget(Targets[0]->GetTransform().GetLocation());
+	}
 
+	// Stuff suddenly broke oh no
+	// FTimerHandle UnusedHandle;
+	// GetWorld()->GetTimerManager().SetTimer(
+	// 	UnusedHandle, this, &AUnitController::BeginControl, 2.0f, false);
+}
+
+void AUnitController::BeginControl()
+{
+
+	// Logging should happen here so all unit controllers do it the same way
+
+	// Find & set target
+	TArray<AActor*> Targets{};
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "Target", Targets);
+	if (!Targets.IsEmpty())
+	{
+		// Target = Targets[0];
+		SetTarget(Targets[0]->GetTransform().GetLocation());
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Ready for control!"))
 	//GoToTarget();
 }
 

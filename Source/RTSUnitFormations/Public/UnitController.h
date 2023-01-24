@@ -21,6 +21,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void BeginControl();
+	
 	UFUNCTION(BlueprintCallable)
 	virtual void GoToTarget();
 
